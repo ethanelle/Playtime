@@ -1,0 +1,4 @@
+name: Playtime
+author: pcout
+version: 1.0.0
+main: us.pcout.playtime.Playtime
