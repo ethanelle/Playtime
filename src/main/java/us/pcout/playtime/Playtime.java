@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Playtime extends JavaPlugin {
@@ -73,17 +75,27 @@ public class Playtime extends JavaPlugin {
         try {
             FileReader reader = new FileReader(storagePath);
             JSONArray players = (JSONArray) jsonParser.parse(reader);
-            for (int i = 0; i < players.size(); i++) {
-                JSONObject player = (JSONObject) players.get(i);
-                if (player.get("uuid") == target.get("uuid")) {
-                    players.remove(i);
-                    break;
+
+            List<JSONObject> list = new ArrayList<>();
+            for (Object player : players) {
+                JSONObject player_JSON = (JSONObject) player;
+                if (!player_JSON.get("uuid").equals(target.get("uuid")))
+                    list.add(player_JSON);
+            }
+            for (int i = 0; i < list.size(); i++) {
+                if (Integer.parseInt(target.get("time").toString()) > Integer.parseInt(list.get(i).get("time").toString())) {
+                    JSONObject temp = list.get(i);
+                    list.set(i, target);
+                    target = temp;
                 }
             }
-            players.add(target);
+            list.add(target);
+
+            JSONArray sortedPlayers = new JSONArray();
+            sortedPlayers.addAll(list);
 
             FileWriter writer = new FileWriter(storagePath);
-            writer.write(players.toJSONString());
+            writer.write(sortedPlayers.toJSONString());
             writer.flush();
             writer.close();
         } catch (IOException | ParseException e) {
@@ -113,16 +125,16 @@ public class Playtime extends JavaPlugin {
         for (int i = 0; i < 10; i++)
             topTen[i] = new PlaytimePlayer();
 
-        JSONParser jsonParser = new JSONParser();
-
         try {
+            JSONParser jsonParser = new JSONParser();
             FileReader reader = new FileReader(storagePath);
             JSONArray players = (JSONArray) jsonParser.parse(reader);
-            for (int i = 0; (i < 10) && (i < players.size()); i++) {
-
-                JSONObject player = (JSONObject) players.get(i);
-                PlaytimePlayer target = new PlaytimePlayer(player.get("lastName").toString(), player.get("uuid").toString(), Integer.parseInt(player.get("time").toString()));
-                topTen[i] = target;
+            if (players.size() > 0) {
+                for (int i = 0; (i < 10) && (i < players.size()); i++) {
+                    JSONObject player = (JSONObject) players.get(i);
+                    PlaytimePlayer target = new PlaytimePlayer(player.get("lastName").toString(), player.get("uuid").toString(), Integer.parseInt(player.get("time").toString()));
+                    topTen[i] = target;
+                }
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
