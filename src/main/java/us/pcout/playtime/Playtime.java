@@ -24,8 +24,8 @@ public class Playtime extends JavaPlugin {
     @Override
     public void onEnable() {
         checkStorage();
-        getServer().getPluginManager().registerEvents(new PlaytimeListener(), this);
-        this.getCommand("playtime").setExecutor(new PlaytimeExecutor());
+        getServer().getPluginManager().registerEvents(new PlaytimeListener(this), this);
+        this.getCommand("playtime").setExecutor(new PlaytimeExecutor(this));
     }
 
     /**
@@ -57,7 +57,7 @@ public class Playtime extends JavaPlugin {
     public void savePlayer(Player player) {
         JSONObject target = new JSONObject();
         target.put("uuid", player.getUniqueId().toString());
-        target.put("lastname", player.getDisplayName());
+        target.put("lastName", player.getDisplayName());
         target.put("time", player.getStatistic(Statistic.PLAY_ONE_MINUTE));
         writePlayer(target);
     }
@@ -84,5 +84,22 @@ public class Playtime extends JavaPlugin {
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    public Integer getPlayer(String name) {
+        JSONParser jsonParser = new JSONParser();
+        try {
+            FileReader reader = new FileReader(storagePath);
+            JSONArray players = (JSONArray) jsonParser.parse(reader);
+            for (Object o : players) {
+                JSONObject player = (JSONObject) o;
+                if (player.get("lastName") == name) {
+                    return (int) player.get("time");
+                }
+            }
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -2,3 +2,14 @@ name: Playtime
 author: pcout
 version: 1.0.0
 main: us.pcout.playtime.Playtime
+commands:
+  playtime:
+    description: Base command for the Playtime plugin
+    usage: /<command> [player]
+    permission: playtime.playtime
+    permission-message: You have insufficient permissions.
+  playtimetop:
+    description: Shows the top 10 players by time spent online
+    usage: /<command>
+    permission: playtime.playtimetop
+    permission-message: You have insufficient permissions.
