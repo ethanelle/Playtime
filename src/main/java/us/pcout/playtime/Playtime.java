@@ -1,5 +1,6 @@
 package us.pcout.playtime;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,6 +16,7 @@ import java.io.IOException;
 
 public class Playtime extends JavaPlugin {
     private final String storagePath = getDataFolder() + "/userdata.json";
+    public final String prefix = ChatColor.GREEN + "Playtime: " + ChatColor.WHITE;
 
     /**
      * checkStorage() ensures plugin folder and JSON file exist
@@ -46,6 +48,7 @@ public class Playtime extends JavaPlugin {
         if (!userdataFile.exists()) {
             try {
                 FileWriter writer = new FileWriter(userdataFile.getAbsoluteFile());
+                writer.write((new JSONArray()).toJSONString());
                 writer.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -58,7 +61,7 @@ public class Playtime extends JavaPlugin {
         JSONObject target = new JSONObject();
         target.put("uuid", player.getUniqueId().toString());
         target.put("lastName", player.getDisplayName());
-        target.put("time", player.getStatistic(Statistic.PLAY_ONE_MINUTE));
+        target.put("time", Integer.toString(player.getStatistic(Statistic.PLAY_ONE_MINUTE)));
         writePlayer(target);
     }
 
@@ -78,7 +81,7 @@ public class Playtime extends JavaPlugin {
             players.add(target);
 
             FileWriter writer = new FileWriter(storagePath);
-            writer.write(target.toJSONString());
+            writer.write(players.toJSONString());
             writer.flush();
             writer.close();
         } catch (IOException | ParseException e) {
@@ -86,15 +89,15 @@ public class Playtime extends JavaPlugin {
         }
     }
 
-    public Integer getPlayer(String name) {
+    public String getPlayer(String name) {
         JSONParser jsonParser = new JSONParser();
         try {
             FileReader reader = new FileReader(storagePath);
             JSONArray players = (JSONArray) jsonParser.parse(reader);
             for (Object o : players) {
                 JSONObject player = (JSONObject) o;
-                if (player.get("lastName") == name) {
-                    return (int) player.get("time");
+                if (player.get("lastName").equals(name)) {
+                    return player.get("time").toString();
                 }
             }
         } catch (IOException | ParseException e) {

@@ -1,5 +1,6 @@
 package us.pcout.playtime;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,27 +21,29 @@ public class PlaytimeExecutor implements CommandExecutor {
             } else {
                 Player player = (Player) commandSender;
                 if (player.hasPermission("playtime.playtime")) {
-                    player.sendMessage("You have played " + buildMessage(player.getStatistic(Statistic.PLAY_ONE_MINUTE)));
+                    player.sendMessage(playtime.prefix + "You have played " + buildMessage(player.getStatistic(Statistic.PLAY_ONE_MINUTE)));
                 }
                 return true;
             }
         } else if (command.getName().equalsIgnoreCase("playtime") && args.length == 1) {
             if (commandSender instanceof Player && !commandSender.hasPermission("playtime.playtime.others")) {
-                return true;
+                commandSender.sendMessage(ChatColor.RED + "You have insufficient permissions.");
             } else {
                 Player target = playtime.getServer().getPlayer(args[0]);
                 if (target == null) {
-                    Integer targetTime = playtime.getPlayer(args[0]);
-                    if (targetTime == null) {
-                        commandSender.sendMessage("Could not find the requested player.");
+                    String storedTime = playtime.getPlayer(args[0]);
+                    if (storedTime == null) {
+                        commandSender.sendMessage(playtime.prefix + "Could not find the requested player.");
                     } else {
-                        commandSender.sendMessage(args[0] + "has played " + buildMessage(targetTime));
+                        commandSender.sendMessage(playtime.prefix + args[0] + " has played " + buildMessage(Integer.parseInt(storedTime)));
                     }
+                } else {
+                    commandSender.sendMessage(playtime.prefix + args[0] + " has played " + buildMessage(target.getStatistic(Statistic.PLAY_ONE_MINUTE)));
                 }
             }
             return true;
         } else if (command.getName().equalsIgnoreCase("playtimetop")) {
-            commandSender.sendMessage("Sorry, this command is not complete yet!");
+            commandSender.sendMessage(playtime.prefix + "Sorry, this command is not complete yet!");
             return true;
         }
         return false;
