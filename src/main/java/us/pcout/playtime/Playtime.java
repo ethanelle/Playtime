@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Objects;
 
 public class Playtime extends JavaPlugin {
     private final String storagePath = getDataFolder() + "/userdata.json";
@@ -27,7 +28,8 @@ public class Playtime extends JavaPlugin {
     public void onEnable() {
         checkStorage();
         getServer().getPluginManager().registerEvents(new PlaytimeListener(this), this);
-        this.getCommand("playtime").setExecutor(new PlaytimeExecutor(this));
+        Objects.requireNonNull(this.getCommand("playtime")).setExecutor(new PlaytimeExecutor(this));
+        Objects.requireNonNull(this.getCommand("playtimetop")).setExecutor(new PlaytimetopExecutor(this));
     }
 
     /**
@@ -104,5 +106,28 @@ public class Playtime extends JavaPlugin {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public PlaytimePlayer[] getTopTen() {
+        PlaytimePlayer[] topTen = new PlaytimePlayer[10];
+        for (int i = 0; i < 10; i++)
+            topTen[i] = new PlaytimePlayer();
+
+        JSONParser jsonParser = new JSONParser();
+
+        try {
+            FileReader reader = new FileReader(storagePath);
+            JSONArray players = (JSONArray) jsonParser.parse(reader);
+            for (int i = 0; (i < 10) && (i < players.size()); i++) {
+
+                JSONObject player = (JSONObject) players.get(i);
+                PlaytimePlayer target = new PlaytimePlayer(player.get("lastName").toString(), player.get("uuid").toString(), Integer.parseInt(player.get("time").toString()));
+                topTen[i] = target;
+            }
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+        return topTen;
     }
 }
