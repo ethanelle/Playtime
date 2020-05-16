@@ -12,4 +12,4 @@ commands:
     description: Shows the top 10 players by time spent online
     usage: /<command>
     permission: playtime.playtimetop
-    permission-message: You have insufficient permissions.
+    permission-message: You have insufficient permissions.gin
